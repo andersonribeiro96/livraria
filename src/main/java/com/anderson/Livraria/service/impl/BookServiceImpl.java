@@ -5,6 +5,10 @@ import com.anderson.Livraria.repository.BookRepository;
 import com.anderson.Livraria.service.BookService;
 import com.anderson.Livraria.web.rest.errors.BookNotFoundException;
 import com.anderson.Livraria.web.rest.errors.BusinessException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -51,5 +55,17 @@ public class BookServiceImpl implements BookService {
         bookRetornado.setAuthor(book.getAuthor());
         bookRetornado.setTitle(book.getTitle());
         return bookRepository.save(bookRetornado);
+    }
+
+    @Override
+    public Page<Book> findWithParam(Book filter, Pageable pageRequest) {
+        Example<Book> example = Example.of(filter,
+                ExampleMatcher
+                        .matching()
+                        .withIgnoreCase()
+                        .withIgnoreNullValues()
+                        .withStringMatcher( ExampleMatcher.StringMatcher.CONTAINING)
+        );
+        return bookRepository.findAll(example, pageRequest);
     }
 }

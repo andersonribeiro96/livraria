@@ -6,6 +6,7 @@ import com.anderson.Livraria.service.BookService;
 import com.anderson.Livraria.web.rest.errors.BookNotFoundException;
 import com.anderson.Livraria.web.rest.errors.BusinessException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,6 +26,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+
+import java.util.Arrays;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,7 +41,6 @@ public class BookResourceTest {
 
     static String BOOK_API = "/api/books";
     static String ISBN_CADASTRADO = "Isbn ja cadastrado";
-
 
 
     @MockBean
@@ -68,7 +73,7 @@ public class BookResourceTest {
 
         BookDTO bookDTO = createNewBookDTO();
 
-        Book savedBook =  Book.builder()
+        Book savedBook = Book.builder()
                 .id(101L)
                 .author("Fracisco Emannuel")
                 .title("As aventuras de Pitombas")
@@ -136,7 +141,7 @@ public class BookResourceTest {
 
     @Test
     @DisplayName("Deve obter informações de um livro")
-    public void getBookDetailsTest() throws Exception{
+    public void getBookDetailsTest() throws Exception {
         //Cenario
         Long id = 1L;
 
@@ -181,7 +186,7 @@ public class BookResourceTest {
 
     @Test
     @DisplayName("deve deletar um livro")
-    public void deleteBookTest() throws Exception{
+    public void deleteBookTest() throws Exception {
 
         //Cenario
         BDDMockito.given(bookService.delete(anyLong())).willReturn(createNewBook(1L));
@@ -196,7 +201,7 @@ public class BookResourceTest {
 
     @Test
     @DisplayName("deve retornar not found quando tentar deletar um livro que não existe")
-    public void deleteInesxistentBookTest() throws Exception{
+    public void deleteInesxistentBookTest() throws Exception {
 
         //Cenario
         BDDMockito.given(bookService.delete(anyLong())).willThrow(BookNotFoundException.class);
@@ -215,7 +220,7 @@ public class BookResourceTest {
 
     @Test
     @DisplayName("Deve atualizar um livro")
-    public void updateBookTest() throws Exception{
+    public void updateBookTest() throws Exception {
 
         //Cenario
         Book bookUpdate = Book.builder()
@@ -223,7 +228,7 @@ public class BookResourceTest {
                 .author("some author")
                 .build();
 
-       BDDMockito.given(bookService.update(1L, bookUpdate)).willReturn(bookUpdate);
+        BDDMockito.given(bookService.update(1L, bookUpdate)).willReturn(bookUpdate);
         String json = new ObjectMapper().writeValueAsString(bookUpdate);
 
         //Execução
@@ -242,13 +247,11 @@ public class BookResourceTest {
 
     @Test
     @DisplayName("Deve retornar not found quando tentar atualizar um livro que não existe")
-    public void updateInesxistentBookTest() throws Exception{
+    public void updateInesxistentBookTest() throws Exception {
 
         //Cenario
-
-       BDDMockito.given(bookService.update(anyLong(), Mockito.any(Book.class))).willThrow(BookNotFoundException.class);
+        BDDMockito.given(bookService.update(anyLong(), Mockito.any(Book.class))).willThrow(BookNotFoundException.class);
         String json = new ObjectMapper().writeValueAsString(createNewBook(1L));
-
 
         //Execução
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
@@ -264,6 +267,34 @@ public class BookResourceTest {
 
     }
 
+    @Test
+    @DisplayName("Deve filtrar livros")
+    public void findBooksTest() throws Exception{
+
+        //Cenario
+        Long id = 1L;
+        Book book = createNewBook(id);
+
+        BDDMockito.given(bookService.findWithParam(Mockito.any(Book.class), Mockito.any(Pageable.class)))
+                .willReturn(new PageImpl<Book>(Arrays.asList(book), PageRequest.of(0, 100), 1));
+
+        String queryString = String.format("?title=%s&author=%s&page=0&size=100",
+                book.getTitle(),
+                book.getAuthor());
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(BOOK_API.concat(queryString))
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("content", Matchers.hasSize(1)))
+                .andExpect(jsonPath("totalElements").value(1))
+                .andExpect(jsonPath("pageable.pageSize").value(100))
+                .andExpect(jsonPath("pageable.pageNumber").value(0));
+
+
+    }
 
 
 }

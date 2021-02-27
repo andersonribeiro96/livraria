@@ -5,19 +5,23 @@ import com.anderson.Livraria.repository.BookRepository;
 import com.anderson.Livraria.service.impl.BookServiceImpl;
 import com.anderson.Livraria.web.rest.errors.BookNotFoundException;
 import com.anderson.Livraria.web.rest.errors.BusinessException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -224,6 +228,34 @@ public class BookServiceTestImplTest implements BookServiceTest {
                 .hasMessage(BOOK_NOT_FOUND);
 
         verify(bookRepository, Mockito.never()).save(book);
+
+    }
+
+    @Test
+    @DisplayName("Deve filtrar livros pelas propiedades")
+    public void findWithParam(){
+
+        //Cenario
+        Book book = createValidBook();
+
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        List<Book> bookList = Arrays.asList(book);
+        Page<Book> page = new PageImpl<Book>(bookList, pageRequest, 1);
+
+        Mockito.when(bookRepository.findAll(Mockito.any(Example.class), Mockito.any(PageRequest.class)))
+                .thenReturn(page);
+
+
+        //Execução
+        Page<Book> resultPage = bookService.findWithParam(book, pageRequest);
+
+
+        //Verificação
+        assertThat(resultPage.getTotalElements()).isEqualTo(1);
+        assertThat(resultPage.getContent()).isEqualTo(bookList);
+        assertThat(resultPage.getPageable().getPageNumber()).isEqualTo(0);
+        assertThat(resultPage.getPageable().getPageSize()).isEqualTo(10);
 
     }
 

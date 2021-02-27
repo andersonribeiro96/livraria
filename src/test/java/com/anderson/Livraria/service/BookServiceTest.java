@@ -11,4 +11,5 @@ public interface BookServiceTest {
     void deleteBookNotFound();
     void updateBookById();
     void updadteBookNotFound();
+    void findWithParam();
 }
