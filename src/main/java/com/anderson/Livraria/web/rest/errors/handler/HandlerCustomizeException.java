@@ -1,5 +1,6 @@
 package com.anderson.Livraria.web.rest.errors.handler;
 
+import com.anderson.Livraria.web.rest.errors.BookNotFoundException;
 import com.anderson.Livraria.web.rest.errors.BusinessException;
 import com.anderson.Livraria.web.rest.errors.ExceptionResponse;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,12 @@ public class HandlerCustomizeException extends ResponseEntityExceptionHandler {
     public final ResponseEntity<ExceptionResponse> handlerIsbnJaCadastrado(Exception ex) {
         String exceptionResponse = (ex.getMessage());
         return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BookNotFoundException.class)
+    public final ResponseEntity<ExceptionResponse> handlerBookNotFound(Exception ex) {
+        String exceptionResponse = (ex.getMessage());
+        return new ResponseEntity(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
 

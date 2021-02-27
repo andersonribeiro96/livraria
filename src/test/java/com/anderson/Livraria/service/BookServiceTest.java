@@ -4,4 +4,11 @@ public interface BookServiceTest {
 
     void saveBookTest();
     void shouldNotSaveABookWithDuplicateISBN();
+    void BookNotFoundGetById();
+    void getByIdTest();
+    void bookNotFoundById();
+    void deleteBookById();
+    void deleteBookNotFound();
+    void updateBookById();
+    void updadteBookNotFound();
 }
