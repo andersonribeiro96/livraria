@@ -58,7 +58,7 @@ public class BookResource {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    @GetMapping("")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<BookDTO> findWithParam(BookDTO bookDTO, Pageable pageableRequest){
 
