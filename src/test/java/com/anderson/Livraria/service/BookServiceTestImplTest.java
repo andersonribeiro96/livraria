@@ -194,8 +194,8 @@ public class BookServiceTestImplTest implements BookServiceTest {
         Long id = 1L;
         Book book = Book.builder().id(id).build();
         Book updateBook = createValidBook();
-        Mockito.when(bookRepository.findById(id)).thenReturn(Optional.ofNullable(book));
-        Mockito.when(bookRepository.save(book)).thenReturn(updateBook);
+        when(bookRepository.findById(id)).thenReturn(Optional.ofNullable(book));
+        when(bookRepository.save(book)).thenReturn(updateBook);
 
         //Execução
         Book returnBook = bookService.update(id, updateBook);
@@ -233,7 +233,7 @@ public class BookServiceTestImplTest implements BookServiceTest {
 
     @Test
     @DisplayName("Deve filtrar livros pelas propiedades")
-    public void findWithParam(){
+    public void findWithParamTest() {
 
         //Cenario
         Book book = createValidBook();
@@ -243,7 +243,7 @@ public class BookServiceTestImplTest implements BookServiceTest {
         List<Book> bookList = Arrays.asList(book);
         Page<Book> page = new PageImpl<Book>(bookList, pageRequest, 1);
 
-        Mockito.when(bookRepository.findAll(Mockito.any(Example.class), Mockito.any(PageRequest.class)))
+        when(bookRepository.findAll(Mockito.any(Example.class), Mockito.any(PageRequest.class)))
                 .thenReturn(page);
 
 
@@ -256,6 +256,23 @@ public class BookServiceTestImplTest implements BookServiceTest {
         assertThat(resultPage.getContent()).isEqualTo(bookList);
         assertThat(resultPage.getPageable().getPageNumber()).isEqualTo(0);
         assertThat(resultPage.getPageable().getPageSize()).isEqualTo(10);
+
+    }
+
+    @Test
+    @DisplayName("deve obter um livro pelo ISBN")
+    public void getBookByIsbnTest() {
+        String isbn = "1230";
+
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.of(Book.builder().id(1L).isbn(isbn).build()));
+        Optional<Book> book = bookService.getBookByIsbn(isbn);
+
+        assertThat(book.isPresent()).isTrue();
+        assertThat(book.get().getId()).isEqualTo(1L);
+        assertThat(book.get().getIsbn()).isEqualTo(isbn);
+
+        verify(bookRepository, times(1)).findByIsbn(isbn);
+
 
     }
 

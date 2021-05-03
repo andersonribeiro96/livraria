@@ -1,7 +1,7 @@
 package com.anderson.Livraria.web.rest;
 
 import com.anderson.Livraria.domain.Book;
-import com.anderson.Livraria.web.dto.BookDTO;
+import com.anderson.Livraria.web.dto.BookDto;
 import com.anderson.Livraria.service.BookService;
 import com.anderson.Livraria.web.rest.errors.BookNotFoundException;
 import com.anderson.Livraria.web.rest.errors.BusinessException;
@@ -49,8 +49,8 @@ public class BookResourceTest {
     @Autowired
     MockMvc mockMvc;
 
-    private BookDTO createNewBookDTO() {
-        return BookDTO.builder()
+    private BookDto createNewBookDTO() {
+        return BookDto.builder()
                 .author("Fracisco Emannuel")
                 .title("As aventuras de Pitombas")
                 .isbn("00123")
@@ -71,7 +71,7 @@ public class BookResourceTest {
     @DisplayName("Deve criar um livro com sucesso")
     public void createBookTest() throws Exception {
 
-        BookDTO bookDTO = createNewBookDTO();
+        BookDto bookDTO = createNewBookDTO();
 
         Book savedBook = Book.builder()
                 .id(101L)
@@ -104,7 +104,7 @@ public class BookResourceTest {
     @DisplayName("Deve lançar erro de validação quando não houver dados suficientes para a criação do livro")
     public void createInvalidBookTest() throws Exception {
 
-        String json = new ObjectMapper().writeValueAsString(new BookDTO());
+        String json = new ObjectMapper().writeValueAsString(new BookDto());
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(BOOK_API)
@@ -121,7 +121,7 @@ public class BookResourceTest {
     @DisplayName("Deve lançar um error ao tentar cadastrar livro com ISBN existente na base de dados")
     public void createBookWithDuplicateIsbn() throws Exception {
 
-        BookDTO bookDTO = createNewBookDTO();
+        BookDto bookDTO = createNewBookDTO();
 
         String json = new ObjectMapper().writeValueAsString(bookDTO);
 

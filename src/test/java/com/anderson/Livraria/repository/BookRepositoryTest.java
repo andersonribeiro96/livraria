@@ -124,7 +124,7 @@ public class BookRepositoryTest {
 
     }
 
-    private Book bookValid() {
+    public static Book bookValid() {
         return Book.builder()
                 .isbn(ISBN)
                 .author("José Silveira Barbosa")
