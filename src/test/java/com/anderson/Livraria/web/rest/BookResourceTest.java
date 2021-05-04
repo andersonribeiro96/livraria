@@ -1,6 +1,7 @@
 package com.anderson.Livraria.web.rest;
 
 import com.anderson.Livraria.domain.Book;
+import com.anderson.Livraria.service.LoanService;
 import com.anderson.Livraria.web.dto.BookDto;
 import com.anderson.Livraria.service.BookService;
 import com.anderson.Livraria.web.rest.errors.BookNotFoundException;
@@ -45,6 +46,9 @@ public class BookResourceTest {
 
     @MockBean
     BookService bookService;
+
+    @MockBean
+    LoanService loanService;
 
     @Autowired
     MockMvc mockMvc;
