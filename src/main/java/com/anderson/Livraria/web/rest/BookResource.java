@@ -8,6 +8,7 @@ import com.anderson.Livraria.web.dto.BookDto;
 import com.anderson.Livraria.web.dto.LoanDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,11 +25,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/books")
 @Api("Book API")
+@Slf4j
 public class BookResource {
 
     private final BookService bookService;
     private final ModelMapper modelMapper;
     private final LoanService loanService;
+
 
 
     public BookResource(BookService bookService, ModelMapper modelMapper, LoanService loanService) {
@@ -39,8 +42,8 @@ public class BookResource {
 
 
     @PostMapping
-    @ApiOperation("CREATES A BOOK")
     public ResponseEntity<BookDto> create(@RequestBody @Valid BookDto bookDTO) {
+        log.info("Creating a book for isbn {}", bookDTO.getIsbn());
         Book book = modelMapper.map(bookDTO, Book.class);
         BookDto dto = modelMapper.map(bookService.save(book), BookDto.class);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
@@ -48,6 +51,7 @@ public class BookResource {
 
     @GetMapping("/{id}")
     public ResponseEntity<BookDto> get(@PathVariable Long id) {
+        log.info("obtaining details for book id {}", id);
         Book book = bookService.getById(id);
         BookDto dto = modelMapper.map(book, BookDto.class);
         return new ResponseEntity<>(dto, HttpStatus.OK);
@@ -55,12 +59,14 @@ public class BookResource {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<BookDto> delete(@PathVariable Long id) {
+        log.info("deleting book of id {}", id);
         BookDto bookDTO = modelMapper.map(bookService.delete(id), BookDto.class);
         return new ResponseEntity<>(bookDTO, HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BookDto> update(@PathVariable Long id, @RequestBody BookDto bookDTO) {
+        log.info("updating book of id {}", id);
         Book book = modelMapper.map(bookDTO, Book.class);
         BookDto dto = modelMapper.map(bookService.update(id, book), BookDto.class);
         return new ResponseEntity<>(dto, HttpStatus.OK);
